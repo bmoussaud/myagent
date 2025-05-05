@@ -1,6 +1,21 @@
 fastmcp
 FastAPI
 python-dotenv 
+
 uvicorn
 pydantic
 requests
+semantic-kernel
+
+#Tracing using Azure AI Foundry project library
+# https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/develop/trace-local-sdk?tabs=python
+opentelemetry-sdk
+azure-core-tracing-opentelemetry
+azure-monitor-opentelemetry
+
+
+opentelemetry-api
+azure-monitor-opentelemetry
+azure-ai-evaluation
+azure-ai-inference
+azure-ai-projects

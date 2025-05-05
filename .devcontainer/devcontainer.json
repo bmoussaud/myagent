@@ -27,6 +27,21 @@
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
+	"customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-azuretools.azure-dev",
+                "ms-azuretools.vscode-dapr",
+                "ms-azuretools.vscode-bicep",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "GitHub.vscode-github-actions",
+                "GitHub.copilot",
+                "ms-azuretools.vscode-azure-github-copilot",
+                "ms-azuretools.vscode-azurecontainerapps"
+            ]
+        }
+    },
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
