@@ -1,0 +1,7 @@
+{
+	"python.defaultInterpreterPath": "/usr/local/bin/python",
+	"[python]": {
+		"editor.defaultFormatter": "ms-python.autopep8"
+	},
+    "chat.mcp.discovery.enabled": true
+}
