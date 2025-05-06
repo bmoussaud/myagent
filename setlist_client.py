@@ -2,6 +2,7 @@
 import requests
 from typing import Optional, Dict, Any
 
+
 class SetlistFMClient:
     BASE_URL = "https://api.setlist.fm/rest/1.0"
 
@@ -30,11 +31,11 @@ class SetlistFMClient:
         """Get setlists for an artist by Musicbrainz ID (mbid)."""
         return self._get(f"/artist/{mbid}/setlists", params={"p": page})
 
-    def search_artists(self, artist_name: str, sort: str= "relevance", page: int = 1) -> Any:
+    def search_artists(self, artist_name: str, sort: str = "relevance", page: int = 1) -> Any:
         """Search for artists by name."""
         return self._get("/search/artists", params={"artistName": artist_name, "p": page, "sort": sort})
 
-    def search_setlists(self,artist_mbid: Optional[str]=None, artist_name: Optional[str] = None, city_name: Optional[str] = None, country_code: Optional[str] = None, page: int = 1) -> Any:
+    def search_setlists(self, artist_mbid: Optional[str] = None, artist_name: Optional[str] = None, city_name: Optional[str] = None, country_code: Optional[str] = None, page: int = 1) -> Any:
         """Search for setlists by artist, city, or country."""
         params = {"p": page}
         if artist_name:

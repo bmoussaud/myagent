@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from setlist_client import SetlistFMClient
 import json
 
+
 class SetlistFMPlugin:
     def __init__(self, api_key):
         """Initialize the SetlistFMPlugin with a valid API key."""
@@ -19,7 +20,7 @@ class SetlistFMPlugin:
 
         Args:
             artist_name: The name of the artist to search for.
-        
+
         Returns:
             A JSON string containing information about matching artists.
         """
@@ -36,35 +37,35 @@ class SetlistFMPlugin:
     )
     def search_setlists(self, artist_name: str = "", city_name: str = "", country_code: str = "") -> str:
         """Search for setlists by artist name, city name, or country code.
-        
+
         Args:
             artist_name: Optional name of the artist.
             city_name: Optional name of the city.
             country_code: Optional country code.
-            
+
         Returns:
             A JSON string containing information about matching setlists.
         """
         try:
             result = self.client.search_setlists(
-                artist_name=artist_name if artist_name else None, 
+                artist_name=artist_name if artist_name else None,
                 city_name=city_name if city_name else None,
                 country_code=country_code if country_code else None
             )
             return json.dumps(result, indent=2)
         except Exception as e:
             return f"Error searching for setlists: {str(e)}"
-    
+
     @kernel_function(
         description="Get a specific setlist by its ID",
         name="get_setlist"
     )
     def get_setlist(self, setlist_id: str) -> str:
         """Get details of a specific setlist by its ID.
-        
+
         Args:
             setlist_id: The ID of the setlist to retrieve.
-            
+
         Returns:
             A JSON string containing information about the setlist.
         """
@@ -80,10 +81,10 @@ class SetlistFMPlugin:
     )
     def get_venue(self, venue_id: str) -> str:
         """Get details of a specific venue by its ID.
-        
+
         Args:
             venue_id: The ID of the venue to retrieve.
-            
+
         Returns:
             A JSON string containing information about the venue.
         """
@@ -98,7 +99,7 @@ class SetlistFMAgent:
     def __init__(self, api_key, model_name="gpt-3.5-turbo", api_key_env="OPENAI_API_KEY"):
         """
         Initialize the Setlist.fm Agent.
-        
+
         Args:
             api_key: Setlist.fm API key
             model_name: Name of the OpenAI model to use
@@ -106,12 +107,13 @@ class SetlistFMAgent:
         """
         # Set up the Semantic Kernel
         self.kernel = sk.Kernel()
-        
+
         # Configure OpenAI chat service
         openai_api_key = os.environ.get(api_key_env)
         if not openai_api_key:
-            raise ValueError(f"Please set the {api_key_env} environment variable")
-        
+            raise ValueError(
+                f"Please set the {api_key_env} environment variable")
+
         self.kernel.add_service(
             sk.services.OpenAIChatCompletion(
                 service_id="chat_completion",
@@ -119,11 +121,11 @@ class SetlistFMAgent:
                 api_key=openai_api_key
             )
         )
-        
+
         # Import the SetlistFM plugin
         self.setlist_plugin = SetlistFMPlugin(api_key)
         self.kernel.import_plugin_from_object(self.setlist_plugin, "SetlistFM")
-        
+
         # Create system prompt for the agent
         self.system_prompt = """
         You are a helpful music assistant that provides information about artists, concerts, and setlists.
@@ -138,17 +140,17 @@ class SetlistFMAgent:
     async def chat(self, user_message):
         """
         Chat with the agent.
-        
+
         Args:
             user_message: User's input message
-            
+
         Returns:
             Agent's response
         """
         settings = sk.services.PromptExecutionSettings(
             extension_data={"system": self.system_prompt}
         )
-        
+
         # Create a function to handle chat
         chat_function = self.kernel.create_function_from_prompt(
             prompt="${user_input}",
@@ -156,40 +158,41 @@ class SetlistFMAgent:
             description="Chat with the SetlistFM agent",
             execution_settings=settings
         )
-        
+
         # Execute the function with the user's message
         result = await self.kernel.invoke(
             chat_function,
             user_input=user_message
         )
-        
+
         return str(result)
 
 
 if __name__ == "__main__":
     # Load environment variables from .env file
     load_dotenv()
-    
+
     # Replace with your actual API key or set the environment variable
     setlistfm_api_key = os.environ.get("SETLISTFM_API_KEY", "YOUR_API_KEY")
-    
+
     # Create the agent"
-    agent = SetlistFMAgent(setlistfm_api_key, model_name="gpt-4o", api_key_env="OPENAI_API")
-    
+    agent = SetlistFMAgent(
+        setlistfm_api_key, model_name="gpt-4o", api_key_env="OPENAI_API")
+
     print("Welcome to the Setlist.fm Agent! Type 'exit' to quit.")
-    
+
     # Simple interaction loop
     import asyncio
-    
+
     async def main():
         while True:
             user_input = input("\nYou: ")
             if user_input.lower() in ["exit", "quit"]:
                 print("Goodbye!")
                 break
-                
+
             response = await agent.chat(user_input)
             print(f"\nAgent: {response}")
-    
+
     # Run the main async loop
     asyncio.run(main())

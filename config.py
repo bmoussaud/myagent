@@ -1,5 +1,6 @@
 # ruff: noqa: ANN201, ANN001
 
+from dotenv import load_dotenv
 import os
 import sys
 import pathlib
@@ -8,18 +9,17 @@ from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
 
 from azure.ai.inference.tracing import AIInferenceInstrumentor
-from azure.core.settings import settings 
+from azure.core.settings import settings
 
 settings.tracing_implementation = "opentelemetry"
 
 # load environment variables from the .env file
-from dotenv import load_dotenv
 
 load_dotenv()
 
 # Set "./assets" as the path where assets are stored, resolving the absolute path:
-#ASSET_PATH = pathlib.Path(__file__).parent.resolve() / "assets"
-# ASSET_PATH = pathlib.Path(__file__).parent.resolve() 
+# ASSET_PATH = pathlib.Path(__file__).parent.resolve() / "assets"
+# ASSET_PATH = pathlib.Path(__file__).parent.resolve()
 
 # Configure an root app logger that prints info level logs to stdout
 logger = logging.getLogger("app")
@@ -45,12 +45,13 @@ def enable_telemetry(log_to_project: bool = False):
         from azure.monitor.opentelemetry import configure_azure_monitor
 
         project = AIProjectClient.from_connection_string(
-            conn_str=os.environ["AIPROJECT_CONNECTION_STRING"], credential=DefaultAzureCredential()
+            conn_str=os.environ["AIPROJECT_CONNECTION_STRING"], credential=DefaultAzureCredential(
+            )
         )
         tracing_link = f"https://ai.azure.com/tracing?wsid=/subscriptions/{project.scope['subscription_id']}/resourceGroups/{project.scope['resource_group_name']}/providers/Microsoft.MachineLearningServices/workspaces/{project.scope['project_name']}"
         application_insights_connection_string = project.telemetry.get_connection_string()
-        logger.info(f"=> application_insights_connection_string: {application_insights_connection_string}")
-
+        logger.info(
+            f"=> application_insights_connection_string: {application_insights_connection_string}")
 
         if not application_insights_connection_string:
             logger.warning(
@@ -60,6 +61,7 @@ def enable_telemetry(log_to_project: bool = False):
 
             return
 
-        configure_azure_monitor(connection_string=application_insights_connection_string)
+        configure_azure_monitor(
+            connection_string=application_insights_connection_string)
         logger.info("Enabled telemetry logging to project, view traces at:")
         logger.info(tracing_link)

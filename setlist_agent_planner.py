@@ -18,20 +18,20 @@ from semantic_kernel.functions import KernelArguments
 
 from setlist_client import SetlistFMClient
 from setlist_agent import SetlistFMPlugin
-from config import enable_telemetry,get_logger
+from config import enable_telemetry, get_logger
 
 from azure.monitor.opentelemetry import configure_azure_monitor
 
-    
-#configure_azure_monitor(connection_string=application_insights_connection_string)
+
+# configure_azure_monitor(connection_string=application_insights_connection_string)
 
 async def main():
     # Load environment variables from .env file
     load_dotenv()
-    
+
     # Get API keys from environment variables
     setlist_api_key = os.environ.get("SETLISTFM_API_KEY", "YOUR_API_KEY")
-    
+
     # Create kernel and add OpenAI chat service
     kernel = sk.Kernel()
     kernel.add_service(AzureChatCompletion(service_id='agent'))
@@ -39,13 +39,13 @@ async def main():
     # Set the logging level for  semantic_kernel.kernel to DEBUG.
     setup_logging()
     logging.getLogger("kernel").setLevel(logging.DEBUG)
-    
 
     # Import the SetlistFM plugin
     setlist_plugin = SetlistFMPlugin(setlist_api_key)
     kernel.add_plugin(setlist_plugin, "setlistfm")
 
-    execution_settings = kernel.get_prompt_execution_settings_from_service_id(service_id='agent')
+    execution_settings = kernel.get_prompt_execution_settings_from_service_id(
+        service_id='agent')
     execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 
     # Create a chat history object
@@ -79,14 +79,14 @@ async def main():
             # Enable telemetry logging to the project
             enable_telemetry(log_to_project=True)
             print("Telemetry logging enabled.")
-            continue;
+            continue
 
         if user_input.lower() == "exit":
             is_complete = True
             break
-        
+
         async for response in agent.invoke(messages=user_input, thread=thread):
-    
+
             print(f"{response.content}")
             thread = response.thread
 

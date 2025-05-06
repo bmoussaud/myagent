@@ -14,17 +14,16 @@ if API_KEY == "YOUR_API_KEY":
 client = SetlistFMClient(api_key=API_KEY)
 
 
-
 # Example: Search for setlists for 'Muse'
 setlists = client.search_setlists(artist_name="Muse")
 print(json.dumps(setlists, indent=2))
 
-artists=client.search_artists(artist_name="Muse")
+artists = client.search_artists(artist_name="Muse")
 print(json.dumps(artists, indent=2))
 artist = artists['artist'][0]
 print(json.dumps(artist, indent=2))
-mbid=artist['mbid']
-#mdib="9c9f1380-2516-4fc9-a3e6-f9f61941d090"
-setlists=client.get_artist_setlists(mbid)
-first=setlists['setlist'][0]
+mbid = artist['mbid']
+# mdib="9c9f1380-2516-4fc9-a3e6-f9f61941d090"
+setlists = client.get_artist_setlists(mbid)
+first = setlists['setlist'][0]
 print(json.dumps(first, indent=2))
