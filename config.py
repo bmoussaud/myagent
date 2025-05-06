@@ -1,6 +1,6 @@
 # ruff: noqa: ANN201, ANN001
 
-from opentelemetry.instrumentation.openai import OpenAIInstrumentor
+# from opentelemetry.instrumentation.openai import OpenAIInstrumentor
 from dotenv import load_dotenv
 import os
 import sys
@@ -40,8 +40,8 @@ def enable_telemetry(log_to_project: bool = False):
     logger.info("Enabling telemetry logging...")
     AIInferenceInstrumentor().instrument()
 
-    logger.info("Enabling OpenAI instrumentation...")
-    OpenAIInstrumentor().instrument()
+    # logger.info("Enabling OpenAI instrumentation...")
+    # OpenAIInstrumentor().instrument()
 
     # enable logging message contents
     logger.info("Enabling logging of message contents...")
@@ -53,6 +53,9 @@ def enable_telemetry(log_to_project: bool = False):
             conn_str=os.environ["AIPROJECT_CONNECTION_STRING"], credential=DefaultAzureCredential(
             )
         )
+        # enable additional instrumentations if needed
+        project.telemetry.enable()
+
         tracing_link = f"https://ai.azure.com/tracing?wsid=/subscriptions/{project.scope['subscription_id']}/resourceGroups/{project.scope['resource_group_name']}/providers/Microsoft.MachineLearningServices/workspaces/{project.scope['project_name']}"
         application_insights_connection_string = project.telemetry.get_connection_string()
         logger.info(
