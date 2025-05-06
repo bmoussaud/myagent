@@ -4,7 +4,7 @@
   "[python]": {
     "editor.defaultFormatter": "ms-python.autopep8"
   },
-  "chat.mcp.discovery.enabled": true,
+  "chat.mcp.discovery.enabled": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true
 }
