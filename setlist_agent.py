@@ -1,9 +1,24 @@
+
+
+import json
 import os
 import semantic_kernel as sk
-from semantic_kernel.functions import kernel_function, KernelFunction
+from semantic_kernel.functions import kernel_function
 from dotenv import load_dotenv
 from setlist_client import SetlistFMClient
-import json
+from opentelemetry.trace import get_tracer
+from opentelemetry import trace
+
+from azure.core.settings import settings
+settings.tracing_implementation = "opentelemetry"
+
+# Setup tracing to console
+# span_exporter = ConsoleSpanExporter()
+# tracer_provider = TracerProvider()
+# tracer_provider.add_span_processor(SimpleSpanProcessor(span_exporter))
+# trace.set_tracer_provider(tracer_provider)
+# /Setup tracing to console
+tracer = get_tracer(__name__)
 
 
 class SetlistFMPlugin:
@@ -24,6 +39,7 @@ class SetlistFMPlugin:
         Returns:
             A JSON string containing information about matching artists.
         """
+        trace.get_current_span().set_attribute("artist_name", artist_name)
         try:
             result = self.client.search_artists(artist_name)
             # Format the output nicely for the agent
@@ -47,6 +63,13 @@ class SetlistFMPlugin:
             A JSON string containing information about matching setlists.
         """
         try:
+            span = trace.get_current_span()
+            span.set_attribute(
+                "artist_name", artist_name if artist_name else 'empty')
+            span.set_attribute(
+                "city_name", city_name if city_name else 'empty')
+            span.set_attribute(
+                "country_code", country_code if country_code else 'empty')
             result = self.client.search_setlists(
                 artist_name=artist_name if artist_name else None,
                 city_name=city_name if city_name else None,
@@ -70,6 +93,7 @@ class SetlistFMPlugin:
             A JSON string containing information about the setlist.
         """
         try:
+            trace.get_current_span().set_attribute("setlist_id", setlist_id)
             result = self.client.get_setlist(setlist_id)
             return json.dumps(result, indent=2)
         except Exception as e:
@@ -89,6 +113,7 @@ class SetlistFMPlugin:
             A JSON string containing information about the venue.
         """
         try:
+            trace.get_current_span().set_attribute("venue_id", venue_id)
             result = self.client.get_venue(venue_id)
             return json.dumps(result, indent=2)
         except Exception as e:

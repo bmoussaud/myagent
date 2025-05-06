@@ -34,7 +34,7 @@ async def main():
 
     # Create kernel and add OpenAI chat service
     kernel = sk.Kernel()
-    kernel.add_service(AzureChatCompletion(service_id='agent'))
+    kernel.add_service(AzureChatCompletion(service_id='Agent'))
 
     # Set the logging level for  semantic_kernel.kernel to DEBUG.
     setup_logging()
@@ -42,16 +42,18 @@ async def main():
 
     # Import the SetlistFM plugin
     setlist_plugin = SetlistFMPlugin(setlist_api_key)
-    kernel.add_plugin(setlist_plugin, "setlistfm")
+    kernel.add_plugin(setlist_plugin, "SetlistFM")
 
+    service = kernel.get_service(service_id='Agent')
+    logging.info(f"*** service is {service}")
     execution_settings = kernel.get_prompt_execution_settings_from_service_id(
-        service_id='agent')
+        service_id='Agent')
     execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 
     # Create a chat history object
     agent = ChatCompletionAgent(
         kernel=kernel,
-        name="SampleAssistantAgent",
+        name="MySetListAgent",
         instructions=f"""
         You are a helpful music assistant that provides information about artists, concerts, and setlists.
         You can search for artists, find setlists from concerts, and provide venue information.
@@ -86,7 +88,6 @@ async def main():
             break
 
         async for response in agent.invoke(messages=user_input, thread=thread):
-
             print(f"{response.content}")
             thread = response.thread
 

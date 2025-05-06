@@ -1,5 +1,6 @@
 # ruff: noqa: ANN201, ANN001
 
+from opentelemetry.instrumentation.openai import OpenAIInstrumentor
 from dotenv import load_dotenv
 import os
 import sys
@@ -24,7 +25,7 @@ load_dotenv()
 # Configure an root app logger that prints info level logs to stdout
 logger = logging.getLogger("app")
 logger.setLevel(logging.INFO)
-logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+# logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
 
 # Returns a module-specific logger, inheriting from the root app logger
@@ -33,14 +34,18 @@ def get_logger(module_name):
 
 
 # Enable instrumentation and logging of telemetry to the project
+
+
 def enable_telemetry(log_to_project: bool = False):
     logger.info("Enabling telemetry logging...")
     AIInferenceInstrumentor().instrument()
 
+    logger.info("Enabling OpenAI instrumentation...")
+    OpenAIInstrumentor().instrument()
+
     # enable logging message contents
     logger.info("Enabling logging of message contents...")
     os.environ["AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED"] = "true"
-    logger.info("---------------------------------------------------------")
     if log_to_project:
         from azure.monitor.opentelemetry import configure_azure_monitor
 
@@ -63,5 +68,6 @@ def enable_telemetry(log_to_project: bool = False):
 
         configure_azure_monitor(
             connection_string=application_insights_connection_string)
-        logger.info("Enabled telemetry logging to project, view traces at:")
-        logger.info(tracing_link)
+        logger.info(
+            f"Enabled telemetry logging to project, view traces at: {tracing_link}")
+        # logger.info(tracing_link)

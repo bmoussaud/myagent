@@ -19,3 +19,4 @@ azure-monitor-opentelemetry
 azure-ai-evaluation
 azure-ai-inference
 azure-ai-projects
+opentelemetry-instrumentation-openai
