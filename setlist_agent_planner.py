@@ -66,7 +66,7 @@ async def main():
         ),
     )
 
-    enable_telemetry(log_to_project=False)
+    enable_telemetry(log_to_project=True)
     thread: ChatHistoryAgentThread = None
     is_complete: bool = False
     while not is_complete:
