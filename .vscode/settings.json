@@ -1,9 +1,10 @@
 {
-	"python.defaultInterpreterPath": "/usr/local/bin/python",
-	"[python]": {
-		"editor.defaultFormatter": "ms-python.autopep8"
-	},
-    "chat.mcp.discovery.enabled": true,
-	"editor.defaultFormatter": "esbenp.prettier-vscode",
-	"editor.formatOnSave": true
+  "python.defaultInterpreterPath": "/usr/local/bin/python",
+  "python.analysis.autoFormatStrings": true,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "chat.mcp.discovery.enabled": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true
 }
