@@ -1,5 +1,8 @@
 
 
+from semantic_kernel.connectors.ai.function_choice_behavior import FunctionChoiceBehavior
+from semantic_kernel.functions import KernelArguments
+from semantic_kernel.agents import ChatCompletionAgent, ChatHistoryAgentThread
 import json
 import os
 import semantic_kernel as sk
@@ -8,7 +11,7 @@ from dotenv import load_dotenv
 from setlist_client import SetlistFMClient
 from opentelemetry.trace import get_tracer
 from opentelemetry import trace
-
+from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from azure.core.settings import settings
 settings.tracing_implementation = "opentelemetry"
 
@@ -139,56 +142,53 @@ class SetlistFMAgent:
             raise ValueError(
                 f"Please set the {api_key_env} environment variable")
 
-        self.kernel.add_service(
-            sk.services.OpenAIChatCompletion(
-                service_id="chat_completion",
-                ai_model_id=model_name,
-                api_key=openai_api_key
-            )
-        )
+        self.kernel.add_service(AzureChatCompletion(
+            service_id='Agent', deployment_name=model_name))
 
         # Import the SetlistFM plugin
         self.setlist_plugin = SetlistFMPlugin(api_key)
-        self.kernel.import_plugin_from_object(self.setlist_plugin, "SetlistFM")
+        self.kernel.add_plugin(self.setlist_plugin, "SetlistFM")
+
+        execution_settings = self.kernel.get_prompt_execution_settings_from_service_id(
+            service_id='Agent')
+        execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 
         # Create system prompt for the agent
         self.system_prompt = """
-        You are a helpful music assistant that provides information about artists, concerts, and setlists.
-        You can search for artists, find setlists from concerts, and provide venue information.
-        
-        When asked about an artist's concerts or setlists, use the SetlistFM plugin to search for that information.
-        Always try to be helpful and provide as much relevant information as possible.
-        
-        If the user asks for something you can't do, politely explain your limitations.
-        """
+            You are a helpful music assistant that provides information about artists, concerts, and setlists.
+            You can search for artists, find setlists from concerts, and provide venue information.
+
+            When asked about an artist's concerts or setlists, use the SetlistFM plugin to search for that information.
+            Always try to be helpful and provide as much relevant information as possible.
+
+            If the user asks for something you can't do, politely explain your limitations.
+            """
+        self.agent = ChatCompletionAgent(
+            kernel=self.kernel,
+            name="MySetListAgent",
+            instructions=self.system_prompt,
+            arguments=KernelArguments(
+                settings=execution_settings,
+            ))
+        self.thread: ChatHistoryAgentThread = None
 
     async def chat(self, user_message):
-        """
-        Chat with the agent.
+        """Send a message to the agent and get a response.
 
         Args:
-            user_message: User's input message
+            user_message: The message to send to the agent.
 
         Returns:
-            Agent's response
+            The agent's response.       
+
         """
-        settings = sk.services.PromptExecutionSettings(
-            extension_data={"system": self.system_prompt}
-        )
 
-        # Create a function to handle chat
-        chat_function = self.kernel.create_function_from_prompt(
-            prompt="${user_input}",
-            function_name="chat",
-            description="Chat with the SetlistFM agent",
-            execution_settings=settings
-        )
+        responses = []
+        async for response in self.agent.invoke(messages=user_message, thread=self.thread):
+            responses.append(response.content)
+            self.thread = response.thread
 
-        # Execute the function with the user's message
-        result = await self.kernel.invoke(
-            chat_function,
-            user_input=user_message
-        )
+        result = "\n".join([r.content for r in responses])
 
         return str(result)
 
