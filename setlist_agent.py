@@ -5,6 +5,7 @@ from semantic_kernel.functions import KernelArguments
 from semantic_kernel.agents import ChatCompletionAgent, ChatHistoryAgentThread
 import json
 import os
+import logging
 import semantic_kernel as sk
 from semantic_kernel.functions import kernel_function
 from dotenv import load_dotenv
@@ -182,14 +183,14 @@ class SetlistFMAgent:
             The agent's response.       
 
         """
-
+        logging.info(f"chat called with message: {user_message}")
         responses = []
         async for response in self.agent.invoke(messages=user_message, thread=self.thread):
             responses.append(response.content)
             self.thread = response.thread
 
         result = "\n".join([r.content for r in responses])
-
+        logging.info(f"chat result: {result}")
         return str(result)
 
 

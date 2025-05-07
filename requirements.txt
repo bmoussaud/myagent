@@ -12,5 +12,8 @@ azure-monitor-opentelemetry
 azure-ai-inference
 azure-ai-projects
 #opentelemetry-instrumentation-openai
+# To have it in Telemetry in Azure AI Foundry
 #opentelemetry-instrumentation-openai-v2
 jsonref
+
+gradio
