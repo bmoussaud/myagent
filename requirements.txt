@@ -17,3 +17,5 @@ azure-ai-projects
 jsonref
 
 gradio
+
+spotipy
